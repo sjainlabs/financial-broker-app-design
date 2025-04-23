@@ -1,0 +1,110 @@
+-- Table: UserRoles (Defines user roles)
+CREATE TABLE UserRoles (
+    role_id INT PRIMARY KEY AUTO_INCREMENT,
+    role_name ENUM('loan_seeker', 'investor', 'broker', 'admin') NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- Table: Users (Stores user information linked to roles)
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    phone VARCHAR(15) UNIQUE NOT NULL,
+    address TEXT,
+    role_id INT NOT NULL, -- Reference to UserRoles table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (role_id) REFERENCES UserRoles(role_id)
+);
+
+-- Table: Credentials (Handles sensitive login information)
+CREATE TABLE Credentials (
+    user_id INT PRIMARY KEY,
+    password_hash VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: FinancialAccounts (Stores financial account details of users)
+CREATE TABLE FinancialAccounts (
+    account_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL, -- Reference to Users table
+    bank_name VARCHAR(100),
+    account_number_masked VARCHAR(20) NOT NULL,
+    IFSC_code VARCHAR(15),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: Transactions (Tracks transactions for financial accounts)
+CREATE TABLE Transactions (
+    transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    account_id INT NOT NULL, -- Reference to FinancialAccounts table
+    amount DECIMAL(10, 2) NOT NULL,
+    transaction_type ENUM('credit', 'debit') NOT NULL,
+    description TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES FinancialAccounts(account_id)
+);
+
+-- Table: LoanSeekers (Stores loan seeker-specific details)
+CREATE TABLE LoanSeekers (
+    seeker_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE NOT NULL, -- Reference to Users table
+    loan_amount DECIMAL(10, 2) NOT NULL,
+    purpose TEXT,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: Investors (Stores investor-specific details)
+CREATE TABLE Investors (
+    investor_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE NOT NULL, -- Reference to Users table
+    investment_capability DECIMAL(10, 2) NOT NULL,
+    risk_tolerance ENUM('low', 'medium', 'high'),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: Brokers (Stores broker-specific details)
+CREATE TABLE Brokers (
+    broker_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE NOT NULL, -- Reference to Users table
+    commission_rate DECIMAL(5, 2) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: LoanInvestments (Tracks multiple investments toward a loan)
+CREATE TABLE LoanInvestments (
+    investment_id INT PRIMARY KEY AUTO_INCREMENT,
+    seeker_id INT NOT NULL, -- Reference to LoanSeekers table
+    investor_id INT NOT NULL, -- Reference to Investors table
+    invested_amount DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (seeker_id) REFERENCES LoanSeekers(seeker_id),
+    FOREIGN KEY (investor_id) REFERENCES Investors(investor_id)
+);
+
+-- Table: LoanAgreements (Links loan seekers, investors, and brokers)
+CREATE TABLE LoanAgreements (
+    agreement_id INT PRIMARY KEY AUTO_INCREMENT,
+    seeker_id INT NOT NULL, -- Reference to LoanSeekers table
+    investor_id INT NOT NULL, -- Reference to Investors table
+    broker_id INT NOT NULL, -- Reference to Brokers table
+    loan_amount DECIMAL(10, 2) NOT NULL,
+    interest_rate DECIMAL(5, 2) NOT NULL,
+    duration_in_months INT NOT NULL,
+    status ENUM('pending', 'approved', 'completed', 'defaulted') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (seeker_id) REFERENCES LoanSeekers(seeker_id),
+    FOREIGN KEY (investor_id) REFERENCES Investors(investor_id),
+    FOREIGN KEY (broker_id) REFERENCES Brokers(broker_id)
+);
+
+-- Table: AuditLogs (Logs user actions for security and compliance)
+CREATE TABLE AuditLogs (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL, -- Reference to Users table
+    action TEXT NOT NULL,
+    ip_address VARCHAR(45),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
