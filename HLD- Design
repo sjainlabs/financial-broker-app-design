@@ -1,0 +1,116 @@
+1. Use Cases
+Actors
+Loan Seeker: Requests loans and tracks their funding status.
+
+Investor: Invests in loans and tracks returns.
+
+Broker: Facilitates interactions between loan seekers and investors, and manages loan agreements.
+
+Admin: Manages users, roles, and the system.
+
+Primary Use Cases
+Use Case	Description
+Request Loan	Loan seekers submit loan requests specifying the amount and purpose.
+Fund Loan	Investors contribute small portions to fund a loan.
+View Investments	Investors view their ongoing and completed investments.
+Manage Agreements	Brokers manage loan agreements between loan seekers and investors.
+View Loan Status	Loan seekers track the funding and repayment status of their loans.
+Audit User Actions	Admins audit user activities to ensure compliance and transparency.
+User Management	Admins add, remove, or update users and roles in the system.
+Transaction Management	Brokers handle transactions and ensure compliance with financial regulations.
+2. UI/UX Strategy
+Design Goals
+Ease of Use: Intuitive navigation for loan seekers, investors, and brokers.
+
+Secure Interactions: Clear feedback for sensitive operations, like loan approvals and investments.
+
+Role-Based Dashboards: Tailored views for each user type.
+
+Loan Seeker Dashboard: Track loan requests and statuses.
+
+Investor Dashboard: View investments and returns.
+
+Broker Dashboard: Manage agreements and user interactions.
+
+Mobile-Friendly Design: Ensure usability across devices with a responsive layout.
+
+Key UI Features
+Loan Request Wizard: Guides loan seekers step by step through the loan request process.
+
+Investment Tracker: Displays active and historical investments for investors.
+
+Agreement Management Tool: Brokers can review, approve, or edit loan agreements.
+
+Real-Time Notifications: Status updates for loan requests, payments, and actions.
+
+Visual Style
+Color Palette: Professional tones (blue, white, and green) for trust and reliability.
+
+Typography: Sans-serif fonts for readability and modern appeal.
+
+Icons and Visuals: Use icons to represent key actions (e.g., loan, investment, transaction).
+
+3. Web Services Endpoints
+Authentication and Authorization
+Endpoint	Method	Description
+/api/auth/register	POST	Register a new user.
+/api/auth/login	POST	Authenticate and provide a token.
+/api/auth/roles	GET	Retrieve available user roles.
+Loan Operations
+Endpoint	Method	Description
+/api/loans/create	POST	Loan seeker creates a new loan request.
+/api/loans/{id}	GET	Retrieve details of a specific loan request.
+/api/loans/{id}/fund	POST	Investors fund a portion of a loan.
+/api/loans/status/{id}	GET	Check the funding status of a loan request.
+Investment Management
+Endpoint	Method	Description
+/api/investments	GET	Retrieve all investments for an investor.
+/api/investments/{id}	GET	View details of a specific investment.
+Broker Operations
+Endpoint	Method	Description
+/api/agreements	GET	Retrieve all loan agreements.
+/api/agreements/{id}	GET	Retrieve details of a specific agreement.
+/api/agreements/{id}/approve	PUT	Approve a loan agreement.
+Admin Operations
+Endpoint	Method	Description
+/api/admin/users	GET	Retrieve all users.
+/api/admin/users/{id}	PUT	Update user roles or details.
+/api/admin/logs	GET	Retrieve system audit logs.
+4. Database Tables (Tabular Format)
+Table Name	Description
+UserRoles	Stores role types like loan seeker, investor, broker, and admin.
+Users	Stores general user information, linked to roles.
+Credentials	Stores sensitive authentication data (e.g., password hash).
+FinancialAccounts	Stores users’ financial account details.
+Transactions	Tracks transactions for each financial account.
+LoanSeekers	Stores loan seeker-specific information.
+Investors	Stores investor-specific information like available funds and risk tolerance.
+Brokers	Stores broker-specific information like commission rates.
+LoanInvestments	Tracks multiple investments from investors toward a single loan.
+LoanAgreements	Links loan seekers, investors, and brokers for finalized agreements.
+AuditLogs	Tracks system activity for compliance and troubleshooting.
+5. Non-Functional Requirements (NFR)
+Performance
+Scalability: Support up to 10,000 concurrent users without degraded performance.
+
+Response Time: API endpoints should respond in <500ms under normal load.
+
+Security
+Data Protection: Use AES-256 encryption for sensitive fields (e.g., Aadhaar, PAN, passwords).
+
+Secure Authentication: Use JWT tokens with role-based access control (RBAC).
+
+Compliance: Ensure compliance with GDPR and Indian DPDP Act.
+
+Availability
+Uptime: Maintain 99.9% availability with backup and disaster recovery mechanisms.
+
+Maintainability
+Modularity: Follow microservices architecture for easy updates and extensions.
+
+Code Quality: Enforce unit tests for 90% code coverage.
+
+Usability
+Responsive Design: Ensure seamless user experience across desktops, tablets, and mobile devices.
+
+Accessibility: Follow WCAG 2.1 standards to make the app usable for everyone.
