@@ -49,10 +49,18 @@ CREATE TABLE Transactions (
 -- Table: LoanSeekers (Stores loan seeker-specific details)
 CREATE TABLE LoanSeekers (
     seeker_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT UNIQUE NOT NULL, -- Reference to Users table
+    user_id INT NOT NULL, -- Reference to Users table
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Table: LoanRequests (Tracks individual loan requests for loan seekers)
+CREATE TABLE LoanRequests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    seeker_id INT NOT NULL, -- Reference to LoanSeekers table
     loan_amount DECIMAL(10, 2) NOT NULL,
     purpose TEXT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (seeker_id) REFERENCES LoanSeekers(seeker_id)
 );
 
 -- Table: Investors (Stores investor-specific details)
@@ -72,21 +80,21 @@ CREATE TABLE Brokers (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
--- Table: LoanInvestments (Tracks multiple investments toward a loan)
-CREATE TABLE LoanInvestments (
+-- Table: Investments (Tracks funding contributions for specific loan requests)
+CREATE TABLE Investments (
     investment_id INT PRIMARY KEY AUTO_INCREMENT,
-    seeker_id INT NOT NULL, -- Reference to LoanSeekers table
+    request_id INT NOT NULL, -- Reference to LoanRequests table
     investor_id INT NOT NULL, -- Reference to Investors table
-    invested_amount DECIMAL(10, 2) NOT NULL,
+    funded_amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (seeker_id) REFERENCES LoanSeekers(seeker_id),
+    FOREIGN KEY (request_id) REFERENCES LoanRequests(request_id),
     FOREIGN KEY (investor_id) REFERENCES Investors(investor_id)
 );
 
 -- Table: LoanAgreements (Links loan seekers, investors, and brokers)
 CREATE TABLE LoanAgreements (
     agreement_id INT PRIMARY KEY AUTO_INCREMENT,
-    seeker_id INT NOT NULL, -- Reference to LoanSeekers table
+    request_id INT NOT NULL, -- Reference to LoanRequests table
     investor_id INT NOT NULL, -- Reference to Investors table
     broker_id INT NOT NULL, -- Reference to Brokers table
     loan_amount DECIMAL(10, 2) NOT NULL,
@@ -94,7 +102,7 @@ CREATE TABLE LoanAgreements (
     duration_in_months INT NOT NULL,
     status ENUM('pending', 'approved', 'completed', 'defaulted') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (seeker_id) REFERENCES LoanSeekers(seeker_id),
+    FOREIGN KEY (request_id) REFERENCES LoanRequests(request_id),
     FOREIGN KEY (investor_id) REFERENCES Investors(investor_id),
     FOREIGN KEY (broker_id) REFERENCES Brokers(broker_id)
 );
